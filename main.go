@@ -53,7 +53,7 @@ func view() {
 	// Create UI with basic HTML passed via data URI
 	page := fmt.Sprintf(`
 	<html>
-		<head><title>Hello</title></head>
+		<head><title>Don't forget to close this window --></title></head>
 		<body><h1>Cosmos price: %s</h1></body>
 		<body><h1>Bitcoin price: %s</h1></body>
 		<body><h1>Ethereum price: %s</h1></body>
