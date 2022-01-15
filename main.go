@@ -2,8 +2,12 @@ package main
 
 import (
 	_ "embed"
+	"fmt"
 	"log"
+	"net/http"
+	"net/url"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/getlantern/systray"
 	"github.com/zserge/lorca"
 )
@@ -34,8 +38,18 @@ func onReady() {
 }
 
 func view() {
+	price, err := getPrice()
+	if err != nil {
+		return
+	}
 	// Create UI with basic HTML passed via data URI
-	ui, err := lorca.New("https://leejoys.github.io/", "", 640, 480)
+	page := fmt.Sprintf(`
+	<html>
+		<head><title>Hello</title></head>
+		<body><h1>Cosmos price: %s</h1></body>
+	</html>
+	`, price)
+	ui, err := lorca.New("data:text/html,"+url.PathEscape(page), "", 640, 480)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,4 +60,21 @@ func view() {
 
 func onExit() {
 
+}
+
+func getPrice() (string, error) {
+	res, err := http.Get("https://coinmarketcap.com/currencies/cosmos/")
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return "", err
+	}
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		return "", err
+	}
+	price := doc.Find(".priceValue")
+	return price.Text(), nil
 }
