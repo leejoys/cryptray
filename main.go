@@ -38,7 +38,15 @@ func onReady() {
 }
 
 func view() {
-	price, err := getPrice()
+	atomPrice, err := getPrice("https://coinmarketcap.com/currencies/cosmos/")
+	if err != nil {
+		return
+	}
+	btcPrice, err := getPrice("https://coinmarketcap.com/currencies/bitcoin/")
+	if err != nil {
+		return
+	}
+	etherPrice, err := getPrice("https://coinmarketcap.com/currencies/ethereum/")
 	if err != nil {
 		return
 	}
@@ -47,9 +55,11 @@ func view() {
 	<html>
 		<head><title>Hello</title></head>
 		<body><h1>Cosmos price: %s</h1></body>
+		<body><h1>Bitcoin price: %s</h1></body>
+		<body><h1>Ethereum price: %s</h1></body>
 	</html>
-	`, price)
-	ui, err := lorca.New("data:text/html,"+url.PathEscape(page), "", 640, 480)
+	`, atomPrice, btcPrice, etherPrice)
+	ui, err := lorca.New("data:text/html,"+url.PathEscape(page), "", 480, 320)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -62,8 +72,8 @@ func onExit() {
 
 }
 
-func getPrice() (string, error) {
-	res, err := http.Get("https://coinmarketcap.com/currencies/cosmos/")
+func getPrice(path string) (string, error) {
+	res, err := http.Get(path)
 	if err != nil {
 		return "", err
 	}
